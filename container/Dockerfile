@@ -47,6 +47,3 @@ COPY . .
 
 # Run the application.
 CMD python code/load-diversity-c2d.py
-
-# link to the github repo within an automated build context
-LABEL org.opencontainers.image.source=https://github.com/simontindemans/load-diversity-c2d

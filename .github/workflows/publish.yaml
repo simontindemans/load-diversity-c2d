@@ -22,5 +22,6 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the C2D Docker image
       run: |
-            docker build ./container --tag ghcr.io/simontindemans/load-diversity-c2d:latest
-            docker push ghcr.io/simontindemans/load-diversity-c2d:latest
+            docker build ./container --tag ghcr.io/${{ github.repository }}:latest \ 
+              --label "org.opencontainers.image.source=https://github.com/"${{ github.repository }}
+            docker push ghcr.io/${{ github.repository }}:latest
