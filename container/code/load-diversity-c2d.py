@@ -53,7 +53,7 @@ for agg_step, households in enumerate(aggregation_levels):
             diversity_factor = 1.0
         # store value in array
         diversity_factor_array[agg_step, i] = diversity_factor
-print(f"Sampling complete.")
+print(f"Sampling complete.\n")
 
 ## Postprocessing
 
@@ -75,7 +75,7 @@ diversity_factor_errors = np.zeros((2,aggregation_steps))
 diversity_factor_errors[0, bootstrap_filter] = average_diversity_factor[bootstrap_filter] - bootstrap_stats.confidence_interval.low
 diversity_factor_errors[1, bootstrap_filter] = bootstrap_stats.confidence_interval.high - average_diversity_factor[bootstrap_filter]
 
-print(f"Postprocessing complete.")
+print(f"Postprocessing complete.\n")
 
 ## Output
 

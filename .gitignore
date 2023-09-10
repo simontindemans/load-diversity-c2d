@@ -1,5 +1,2 @@
-data/output/*
-data/input/*.zip
-data/input/*.csv
 .DS_Store
 
