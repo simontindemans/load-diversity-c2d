@@ -15,13 +15,25 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    - name: Extract metadata for the Docker image
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository }}
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build the C2D Docker image
-      run: |
-            docker build ./container --tag ghcr.io/${{ github.repository }}:latest --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
-            docker push ghcr.io/${{ github.repository }}:latest
+    - name: Build and push the Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+#    - name: Build the C2D Docker image
+#      run: |
+#            docker build ./container --tag ghcr.io/${{ github.repository }}:latest --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
+#            docker push ghcr.io/${{ github.repository }}:latest
