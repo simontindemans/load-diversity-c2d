@@ -1,0 +1,22 @@
+name: publish
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-c2d-image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build the C2D Docker image
+      run: |
+            docker build ./container --tag ghcr.io/simontindemans/load-diversity-c2d:latest
+            docker push ghcr.io/simontindemans/load-diversity-c2d:latest
