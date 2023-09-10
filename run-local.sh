@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker run -v ./data:/data load-diversity-c2d 
+docker run -v ./data:/data load-diversity-c2d:main 

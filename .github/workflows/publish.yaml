@@ -1,20 +1,24 @@
 name: publish
 
+# trigger the workflow on pushes to the main branch
 on: 
   push:
     branches:
       - main
 
+# ensure that the workflow has the right permissions
 permissions: 
   contents: read
   packages: write
 
+# define the jobs that will run
 jobs:
   publish-c2d-image:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+    # extract metadata from the github repository (used in final step)
     - name: Extract metadata for the Docker image
       id: meta
       uses: docker/metadata-action@v4
@@ -29,11 +33,8 @@ jobs:
     - name: Build and push the Docker image
       uses: docker/build-push-action@v4
       with:
+        # context is the location of the Dockerfile
         context: ./container
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-#    - name: Build the C2D Docker image
-#      run: |
-#            docker build ./container --tag ghcr.io/${{ github.repository }}:latest --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
-#            docker push ghcr.io/${{ github.repository }}:latest
