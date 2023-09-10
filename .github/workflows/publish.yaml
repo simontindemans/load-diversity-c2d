@@ -22,6 +22,5 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the C2D Docker image
       run: |
-            docker build ./container --tag ghcr.io/${{ github.repository }}:latest \ 
-              --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
+            docker build ./container --tag ghcr.io/${{ github.repository }}:latest --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
             docker push ghcr.io/${{ github.repository }}:latest
