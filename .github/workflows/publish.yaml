@@ -23,5 +23,5 @@ jobs:
     - name: Build the C2D Docker image
       run: |
             docker build ./container --tag ghcr.io/${{ github.repository }}:latest \ 
-              --label "org.opencontainers.image.source=https://github.com/"${{ github.repository }}
+              --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}"
             docker push ghcr.io/${{ github.repository }}:latest
