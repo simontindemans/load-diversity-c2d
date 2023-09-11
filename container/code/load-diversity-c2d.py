@@ -7,23 +7,27 @@ import matplotlib.pyplot as pyplot
 import scipy.stats as stats
 
 
-INPUT_DIR = "/data/input"                   # location of input data (regular or zipped CSV) with load user load profiles
-OUTPUT_DIR = "/data/output"                # location of output data (PDF)
+INPUT_DIR = "/data/inputs"                   # location of input data (regular or zipped CSV) with load user load profiles
+OUTPUT_DIR = "/data/outputs"                # location of output data (PDF)
 SAMPLESIZE = 100                        # Number of independent samples to use to estimate averages
 NUMBOOTSTRAP = 2000                     # Number of bootstrap resampling steps
 STEPFACTOR = 2                          # Aggregation level step size (multiplicative, i.e. 3 gives 1,3,9,...)
 
 ## Load data
 
-DATA = None
-for file in os.listdir(INPUT_DIR):
-    DATA = os.path.join(INPUT_DIR, file)
-    if file.lower().endswith(".csv") or file.lower().endswith(".csv.zip"):
-        print(f"Using data file {DATA}\n")
+input_found = False
+for basedir, subdir, files in os.walk(INPUT_DIR):
+    if input_found:
         break
-    else:
-        print(f"Skipping {DATA} (not a .CSV or .CSV.ZIP file)")
-if DATA is None:
+    for file in files:
+        DATA = os.path.join(basedir, file)
+        if file.lower().endswith(".csv") or file.lower().endswith(".csv.zip"):
+            print(f"Using data file {DATA}\n")
+            input_found = True
+            break
+        else:
+            print(f"Skipping {DATA} (not a .CSV or .CSV.ZIP file)")
+if not input_found:
     print(f"Error: no .CSV or .CSV.ZIP file found in {INPUT_DIR}")
 
 dataframe = pandas.read_csv(DATA, index_col=0, parse_dates=True)
