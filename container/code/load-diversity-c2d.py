@@ -8,12 +8,12 @@ import sys
 import matplotlib.pyplot as pyplot
 import scipy.stats as stats
 
-INPUT_DIR = "/data/inputs"  # location of input data (regular or zipped CSV) with load user load profiles
-OUTPUT_DIR = "/data/outputs"  # location of output data (PDF)
-LOG = "/data/logs/load-diversity-c2d.log"
-SAMPLESIZE = 50 #100 # Number of independent samples to use to estimate averages
-NUMBOOTSTRAP = 1000 #2000  # Number of bootstrap resampling steps
-STEPFACTOR = 6 #3  # Aggregation level step size (multiplicative, i.e. 3 gives 1,3,9,...)
+INPUT_DIR = "/data/inputs"                 # location of input data (regular or zipped CSV) with load user load profiles
+OUTPUT_DIR = "/data/outputs"               # location of output data (PDF)
+LOG = "/data/logs/load-diversity-c2d.log"  # Log file location, can be used in the log method
+SAMPLESIZE = 50 #100                       # Number of independent samples to use to estimate averages
+NUMBOOTSTRAP = 1000 #2000                  # Number of bootstrap resampling steps
+STEPFACTOR = 6 #3                          # Aggregation level step size (multiplicative, i.e. 3 gives 1,3,9,...)
 
 
 def log(msg, exit_code=-1):
@@ -53,11 +53,6 @@ for basedir, subdir, files in os.walk(INPUT_DIR):
 
 
 dataframe = None
-# dtypes = {} #{0: 'string'}
-#
-# for i in range(1, 4444):
-#      dtypes[i] = 'float16'
-
 if input_type == "csv":
     log(f"Start reading {input_file} csv file...")
     dataframe = pandas.read_csv(input_file, index_col=0, parse_dates=True, dtype='float32')
@@ -68,14 +63,14 @@ elif input_type == "zip":
     dataframe = pandas.read_csv(input_file, compression=input_type, index_col=0, parse_dates=True, dtype='float32')
     log(f"Finished reading {input_file} csv file from zip")
 else:
-    log(f"Error: no .CSV or .CSV.ZIP file found in {INPUT_DIR}", 1)
+    log(f"Error: no .CSV or .CSV.ZIP file found in {INPUT_DIR}", 1) # We exit with an exit code in this case
 
-memory_stats("after reading csv")
-# log(f"Data types {dataframe.dtypes}")
 gc.collect()
-memory_stats("after reading csv and gc")
+memory_stats("after reading csv")
+
 
 ## Sampling and diversity factor calculation
+
 # determine the number of aggregation levels according to the size of the dataset and the STEPFACTOR
 aggregation_steps = 1 + math.floor(math.log(len(dataframe.columns)) / math.log(STEPFACTOR))
 # calculate the aggregation levels, starting at 1
@@ -103,19 +98,11 @@ for agg_step, households in enumerate(aggregation_levels):
         diversity_factor_array[agg_step, i] = diversity_factor
 log(f"Sampling complete.")
 
-memory_stats("after sampling")
-log(f"GC count after sampling: {gc.get_count()}")
-gc.collect()
-log(f"GC count after dataframe sampling GC calls: {gc.get_count()}")
-memory_stats("after sampling and GC")
 dataframe = None
-## Postprocessing
-
-log(f"GC count after dataframe null: {gc.get_count()}")
 gc.collect()
-log(f"GC count after datatframe null GC calls: {gc.get_count()}")
-memory_stats("After dataframe null")
+memory_stats("after sampling")
 
+## Postprocessing
 
 log(f"Postprocessing results:")
 # calculate sample average for each aggregation level
@@ -124,8 +111,7 @@ average_diversity_factor = diversity_factor_array.mean(axis=1)
 # identify sample sets with non-identical values (usually all other than aggregation level = 1)
 bootstrap_filter = (np.equal(diversity_factor_array[:, 0:1], diversity_factor_array).all(axis=1) == False)
 # apply BCa bootstrap analysis
-bootstrap_stats = stats.bootstrap((diversity_factor_array[bootstrap_filter],), np.mean, n_resamples=NUMBOOTSTRAP,
-                                  axis=1, vectorized=True)
+bootstrap_stats = stats.bootstrap((diversity_factor_array[bootstrap_filter],), np.mean, n_resamples=NUMBOOTSTRAP, axis=1, vectorized=True)
 
 # extract bootstrap standard errors (and use zero where all samples are identical)
 standard_error = np.zeros(aggregation_steps)
@@ -133,13 +119,10 @@ standard_error[bootstrap_filter] = bootstrap_stats.standard_error
 
 # extract absolute up / down errors
 diversity_factor_errors = np.zeros((2, aggregation_steps))
-diversity_factor_errors[0, bootstrap_filter] = average_diversity_factor[
-                                                   bootstrap_filter] - bootstrap_stats.confidence_interval.low
-diversity_factor_errors[1, bootstrap_filter] = bootstrap_stats.confidence_interval.high - average_diversity_factor[
-    bootstrap_filter]
+diversity_factor_errors[0, bootstrap_filter] = average_diversity_factor[bootstrap_filter] - bootstrap_stats.confidence_interval.low
+diversity_factor_errors[1, bootstrap_filter] = bootstrap_stats.confidence_interval.high - average_diversity_factor[bootstrap_filter]
 
 log(f"Postprocessing complete.")
-
 
 ## Output
 
