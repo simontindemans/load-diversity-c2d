@@ -17,7 +17,15 @@ ENV PYTHONUNBUFFERED=1
 # Set MPLCONFIGDIR to a temporary directory to avoid a warning message.
 ENV MPLCONFIGDIR=/tmp/
 
+# Make sure libmagic is installed for mimetype detection
+RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 && rm -rf /var/lib/apt/lists/*
+
+# Copy the source code into the container.
+COPY . /app/
+
+
 WORKDIR /app
+
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
@@ -25,11 +33,12 @@ ARG UID=10001
 RUN adduser \
     --disabled-password \
     --gecos "" \
-    --home "/nonexistent" \
+    --home "/app" \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
     appuser
+
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -37,13 +46,11 @@ RUN adduser \
 # into this layer.
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+    python -m pip install -r requirements.txt \
+#RUN python -m pip install -r requirements.txt
 
 # Switch to the non-privileged user to run the application.
 USER appuser
 
-# Copy the source code into the container.
-COPY . .
-
-# Run the application.
-CMD python code/load-diversity-c2d.py
+# Run the application. Please note that the below line will be provided by the C2D environment and run-local.sh script
+#ENTRYPOINT python code/load-diversity-c2d.py

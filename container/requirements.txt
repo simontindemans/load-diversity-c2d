@@ -2,3 +2,4 @@ matplotlib==3.7.2
 numpy==1.25.1
 pandas==2.0.3
 scipy==1.11.1
+python-magic==0.4.13
