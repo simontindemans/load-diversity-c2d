@@ -11,9 +11,9 @@ import scipy.stats as stats
 INPUT_DIR = "/data/inputs"                 # location of input data (regular or zipped CSV) with load user load profiles
 OUTPUT_DIR = "/data/outputs"               # location of output data (PDF)
 LOG = "/data/logs/load-diversity-c2d.log"  # Log file location, can be used in the log method
-SAMPLESIZE = 50 #100                       # Number of independent samples to use to estimate averages
-NUMBOOTSTRAP = 1000 #2000                  # Number of bootstrap resampling steps
-STEPFACTOR = 6 #3                          # Aggregation level step size (multiplicative, i.e. 3 gives 1,3,9,...)
+SAMPLESIZE = 100 #100                      # Number of independent samples to use to estimate averages
+NUMBOOTSTRAP = 2000 #2000                  # Number of bootstrap resampling steps
+STEPFACTOR = 3 #3                          # Aggregation level step size (multiplicative, i.e. 3 gives 1,3,9,...)
 
 
 def log(msg, exit_code=-1):
